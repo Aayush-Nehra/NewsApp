@@ -9,9 +9,7 @@ export default class App extends Component {
   render() {
     return (
       <div>
-        
         <Navbar/>
-        <h1>Top News Headlines</h1>
         <NewsComponent/>
       </div>
     )
