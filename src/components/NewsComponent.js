@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import NewsItem from './NewsItem'
 import Loader from './Loader';
+import configData from '../main/resources/config.json'
 
 export class NewsComponent extends Component {
   constructor() {
@@ -35,7 +36,8 @@ export class NewsComponent extends Component {
   }
 
   async getNewsArticlesObject(pageNumber) {
-    let newsApiUrl = `https://newsapi.org/v2/top-headlines?country=in&apiKey=4ee17a8d3034488383d8fd86c4b89dcf&${this.props.pageSize}&page=${pageNumber}`;
+    // let newsApiUrl = `https://newsapi.org/v2/top-headlines?country=in&apiKey=4ee17a8d3034488383d8fd86c4b89dcf&${this.props.pageSize}&page=${pageNumber}`;
+    let newsApiUrl = this.getNewsApiRequestUrl(pageNumber);
     let rawNewsArticles = await fetch(newsApiUrl);
     let parsedNewsArticles = await rawNewsArticles.json();
     return parsedNewsArticles;
@@ -50,6 +52,10 @@ export class NewsComponent extends Component {
   gotoPreviousPage = async ()=>{
     let prevPageNumber = this.getPreviousPageNumber();
     this.displayLoadedArticles(prevPageNumber);
+  }
+
+  getNewsApiRequestUrl(pageNumber) {
+    return `${configData.NEWSAPI_URL}?country=in&apiKey=${configData.NEWSAPI_KEY}&pageSize=${configData.NEWS_APPLICATION_PAGE_SIZE}&page=${pageNumber}`;
   }
 
   getPreviousPageNumber() {
