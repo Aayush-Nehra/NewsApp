@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import NewsItem from './NewsItem'
 import Loader from './Loader';
 import configData from '../main/resources/config.json'
+import PropTypes from 'prop-types'
 
 export class NewsComponent extends Component {
   constructor() {
@@ -43,19 +44,19 @@ export class NewsComponent extends Component {
     return parsedNewsArticles;
   }
 
-  gotoNextPage = async ()=>{
+  gotoNextPage = async () => {
     this.loadArtilcles()
     let nextPageNumber = this.getNextPageNumber();
     this.displayLoadedArticles(nextPageNumber);
   }
 
-  gotoPreviousPage = async ()=>{
+  gotoPreviousPage = async () => {
     let prevPageNumber = this.getPreviousPageNumber();
     this.displayLoadedArticles(prevPageNumber);
   }
 
   getNewsApiRequestUrl(pageNumber) {
-    return `${configData.NEWSAPI_URL}?country=in&apiKey=${configData.NEWSAPI_KEY}&pageSize=${configData.NEWS_APPLICATION_PAGE_SIZE}&page=${pageNumber}`;
+    return `${configData.NEWSAPI_URL}?country=in&category=${this.props.category}&apiKey=${configData.NEWSAPI_KEY}&pageSize=${configData.NEWS_APPLICATION_PAGE_SIZE}&page=${pageNumber}`;
   }
 
   getPreviousPageNumber() {
@@ -76,26 +77,28 @@ export class NewsComponent extends Component {
         <div className="container text-center my-3">
           <h1 tabIndex="0">Top News Headlines</h1>
           <div className="row">
-          <div className="text-center">
-            {this.state.isArticleLoading&&<Loader/>}
-          </div>
+            <div className="text-center">
+              {this.state.isArticleLoading && <Loader />}
+            </div>
             {!this.state.isArticleLoading && this.state.articles.map((article) => {
               return <div className="col-md-4 my-3" key={article.url}>
-                <div className="w-100">
-                  <NewsItem className="text-truncate" title={article.title ? article.title : ""} imageUrl={article.urlToImage} description={article.description ? article.description : ""} url={article.url} />
-                </div>
+                <NewsItem title={article.title ? article.title : ""} imageUrl={article.urlToImage} description={article.description ? article.description : ""} url={article.url} author={article.author} date={article.publishedAt} />
               </div>
             })}
           </div>
           <div className="container d-flex justify-content-between">
-          <button type="button" disabled={this.state.pageNumber<=1} onClick={this.gotoPreviousPage} className="btn btn-dark">&#8592; Previous</button>
-          <button type="button" disabled={this.state.pageNumber>=(Math.ceil(this.state.totalArticles/15))} onClick={this.gotoNextPage} className="btn btn-dark">Next &#8594;</button>
+            <button type="button" disabled={this.state.pageNumber <= 1} onClick={this.gotoPreviousPage} className="btn btn-dark">&#8592; Previous</button>
+            <button type="button" disabled={this.state.pageNumber >= (Math.ceil(this.state.totalArticles / 15))} onClick={this.gotoNextPage} className="btn btn-dark">Next &#8594;</button>
+          </div>
         </div>
-        </div>
-        
+
       </div>
     )
   }
+}
+
+NewsComponent.propTypes = {
+  category: PropTypes.string,
 }
 
 export default NewsComponent
