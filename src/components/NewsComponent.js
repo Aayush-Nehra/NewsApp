@@ -3,7 +3,6 @@ import NewsItem from './NewsItem'
 import Loader from './Loader';
 import configData from '../main/resources/config.json'
 import PropTypes from 'prop-types'
-import InfiniteScroll from 'react-infinite-scroll-component';
 
 export class NewsComponent extends Component {
   constructor(props) {
@@ -26,17 +25,14 @@ export class NewsComponent extends Component {
   };
 
   async componentDidMount() {
-    //this.loadArtilcles();
+    this.loadArtilcles();
     await this.displayLoadedArticlesBySettingState(this.state.pageNumber);
   }
 
   async displayLoadedArticlesBySettingState(pageNumber) {
     let newsArticlesObject = await this.getNewsArticlesObject(pageNumber);
-    debugger;
-    let allNewsArticles = this.state.articles.concat(newsArticlesObject.articles)
     this.setState({
-      // articles: newsArticlesObject.articles,
-      articles: allNewsArticles,
+      articles: newsArticlesObject.articles,
       totalArticles: newsArticlesObject.totalResults,
       isArticleLoading: false,
       pageNumber: pageNumber
@@ -63,17 +59,11 @@ export class NewsComponent extends Component {
     this.displayLoadedArticlesBySettingState(nextPageNumber);
   }
 
-  loadMoreArticles = async () => {
-    //this.loadArtilcles()
-    let nextPageNumber = this.getNextPageNumber();
-    this.displayLoadedArticlesBySettingState(nextPageNumber);
+  gotoPreviousPage = async () => {
+    this.loadArtilcles()
+    let prevPageNumber = this.getPreviousPageNumber();
+    this.displayLoadedArticlesBySettingState(prevPageNumber);
   }
-
-  // gotoPreviousPage = async () => {
-  //   this.loadArtilcles()
-  //   let prevPageNumber = this.getPreviousPageNumber();
-  //   this.displayLoadedArticlesBySettingState(prevPageNumber);
-  // }
 
   getNewsApiRequestUrl(pageNumber) {
     return `${configData.NEWSAPI_URL}?country=in&category=${this.props.category}&apiKey=${configData.NEWSAPI_KEY}&pageSize=${configData.NEWS_APPLICATION_PAGE_SIZE}&page=${pageNumber}`;
@@ -95,30 +85,21 @@ export class NewsComponent extends Component {
     return (
       <div>
         <div className="container text-center my-3">
-          <h1>Top News Headlines - {this.toTitleCase(this.props.category)}</h1>
-          <InfiniteScroll
-              dataLength={this.state.totalArticles}
-              next={this.loadMoreArticles}
-              hasMore={true}
-              loader={<h4>Loading...</h4>}
-            >
+          <h1 tabIndex="0">Top News Headlines</h1>
           <div className="row">
-            {/* <div className="text-center">
+            <div className="text-center">
               {this.state.isArticleLoading && <Loader />}
-            </div> */}
-            
-              {this.state.articles.map((article) => {
+            </div>
+            {!this.state.isArticleLoading && this.state.articles.map((article) => {
                 return <div className="col-md-4 my-3" key={article.url}>
                   <NewsItem title={article.title ? article.title : ""} imageUrl={article.urlToImage} description={article.description ? article.description : ""} url={article.url} author={article.author} date={article.publishedAt} articleSource={article.source.name} />
                 </div>
               })}
-            
           </div>
-          </InfiniteScroll>
-          {/* <div className="container d-flex justify-content-between">
+          <div className="container d-flex justify-content-between">
             <button type="button" disabled={this.state.pageNumber <= 1} onClick={this.gotoPreviousPage} className="btn btn-dark">&#8592; Previous</button>
             <button type="button" disabled={this.state.pageNumber >= (Math.ceil(this.state.totalArticles / 15))} onClick={this.gotoNextPage} className="btn btn-dark">Next &#8594;</button>
-          </div> */}
+          </div>
         </div>
 
       </div>
