@@ -27,10 +27,10 @@ export class NewsComponent extends Component {
 
   async displayLoadedArticlesInPage(pageNumber) {
     this.props.setProgress(20)
-    let newsArticlesObject = await this.getNewsArticlesObject(pageNumber);
+    let newsArticlesObjectForDisplay = await this.getNewsArticlesObject(pageNumber);
     this.setState({
-      totalArticles: newsArticlesObject.totalResults,
-      articles: this.state.articles.concat(newsArticlesObject.articles),
+      totalArticles: newsArticlesObjectForDisplay.totalResults,
+      articles: this.state.articles.concat(newsArticlesObjectForDisplay.articles),
       isArticleLoading: false,
     });
     this.props.setProgress(100)
@@ -89,6 +89,7 @@ export class NewsComponent extends Component {
 
 NewsComponent.propTypes = {
   category: PropTypes.string,
+  setProgress: PropTypes.func,
 }
 
 export default NewsComponent
