@@ -3,6 +3,7 @@ import NewsItem from './NewsItem'
 import Loader from './Loader';
 import configData from '../main/resources/config.json'
 import PropTypes from 'prop-types'
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 export class NewsComponent extends Component {
   constructor(props) {
@@ -25,12 +26,14 @@ export class NewsComponent extends Component {
   }
 
   async displayLoadedArticlesInPage(pageNumber) {
+    this.props.setProgress(20)
     let newsArticlesObject = await this.getNewsArticlesObject(pageNumber);
     this.setState({
       totalArticles: newsArticlesObject.totalResults,
       articles: this.state.articles.concat(newsArticlesObject.articles),
       isArticleLoading: false,
     });
+    this.props.setProgress(100)
   }
 
   async getNewsArticlesObject(pageNumber) {
