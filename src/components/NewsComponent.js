@@ -44,7 +44,7 @@ export class NewsComponent extends Component {
   }
   
   getNewsApiRequestUrl(pageNumber) {
-    return `${configData.NEWSAPI_URL}?country=in&category=${this.props.category}&apiKey=${configData.NEWSAPI_KEY}&pageSize=${configData.NEWS_APPLICATION_PAGE_SIZE}&page=${pageNumber}`;
+    return `${configData.NEWSAPI_URL}?country=in&category=${this.props.category}&apiKey=${process.env.REACT_APP_NEWSAPI_KEY}&pageSize=${configData.NEWS_APPLICATION_PAGE_SIZE}&page=${pageNumber}`;
   }
 
   fetchMoreData = async () => {
