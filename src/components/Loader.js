@@ -4,8 +4,8 @@ import ajaxloader from '../assets/ajaxloader.gif'
 export default class Loader extends Component {
   render() {
     return (
-      <div>
-        <img src={ajaxloader} alt="" />
+      <div className='container text-center my-3'>
+        <img src={ajaxloader} style={{height: '50px', width: '50x'}} alt="" />
       </div>
     )
   }

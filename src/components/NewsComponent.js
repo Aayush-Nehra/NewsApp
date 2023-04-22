@@ -10,99 +10,76 @@ export class NewsComponent extends Component {
     this.state = {
       articles: [],
       totalArticles: 0,
-      isArticleLoading: false,
+      isArticleLoading: true,
       pageNumber: 1
     }
-    document.title = `News - ${this.toTitleCase(this.props.category)}`
+    document.title = `${this.capitalizeFirstLetter(this.props.category)} News`
   }
-
-  toTitleCase = (phrase) => {
-    return phrase
-      .toLowerCase()
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
 
   async componentDidMount() {
-    this.loadArtilcles();
-    await this.displayLoadedArticlesBySettingState(this.state.pageNumber);
+    await this.displayLoadedArticlesInPage(this.state.pageNumber);
   }
 
-  async displayLoadedArticlesBySettingState(pageNumber) {
+  capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  async displayLoadedArticlesInPage(pageNumber) {
     let newsArticlesObject = await this.getNewsArticlesObject(pageNumber);
     this.setState({
-      articles: newsArticlesObject.articles,
       totalArticles: newsArticlesObject.totalResults,
+      articles: this.state.articles.concat(newsArticlesObject.articles),
       isArticleLoading: false,
-      pageNumber: pageNumber
-    });
-  }
-
-  loadArtilcles() {
-    this.setState({
-      isArticleLoading: true,
     });
   }
 
   async getNewsArticlesObject(pageNumber) {
-    // let newsApiUrl = `https://newsapi.org/v2/top-headlines?country=in&apiKey=4ee17a8d3034488383d8fd86c4b89dcf&${this.props.pageSize}&page=${pageNumber}`;
     let newsApiUrl = this.getNewsApiRequestUrl(pageNumber);
     let newsArticlesObject = await fetch(newsApiUrl);
     let parsedNewsArticlesObject = await newsArticlesObject.json();
     return parsedNewsArticlesObject;
   }
-
-  gotoNextPage = async () => {
-    this.loadArtilcles()
-    let nextPageNumber = this.getNextPageNumber();
-    this.displayLoadedArticlesBySettingState(nextPageNumber);
-  }
-
-  gotoPreviousPage = async () => {
-    this.loadArtilcles()
-    let prevPageNumber = this.getPreviousPageNumber();
-    this.displayLoadedArticlesBySettingState(prevPageNumber);
-  }
-
+  
   getNewsApiRequestUrl(pageNumber) {
     return `${configData.NEWSAPI_URL}?country=in&category=${this.props.category}&apiKey=${configData.NEWSAPI_KEY}&pageSize=${configData.NEWS_APPLICATION_PAGE_SIZE}&page=${pageNumber}`;
   }
 
-  getPreviousPageNumber() {
-    let currentPageNumber = this.state.pageNumber;
-    let prevPageNumber = currentPageNumber - 1;
-    return prevPageNumber;
+  fetchMoreData = async () => {
+    let nextPageNumber = this.getNextPageNumber()
+    this.displayLoadedArticlesInPage(nextPageNumber);
   }
 
   getNextPageNumber() {
     let currentPageNumber = this.state.pageNumber;
     let nextPageNumber = currentPageNumber + 1;
+    this.setState({
+      pageNumber: nextPageNumber
+    })
     return nextPageNumber;
   }
 
   render() {
     return (
-      <div>
-        <div className="container text-center my-3">
-          <h1 tabIndex="0">Top News Headlines</h1>
-          <div className="row">
-            <div className="text-center">
-              {this.state.isArticleLoading && <Loader />}
-            </div>
-            {!this.state.isArticleLoading && this.state.articles.map((article) => {
+      <>
+        <h1 className='text-center' style={{ margin: '35px 0px' }}>Top News Headlines - {this.capitalizeFirstLetter(this.props.category)}</h1>
+        {this.state.isArticleLoading && <Loader />}
+        <InfiniteScroll
+          dataLength={this.state.articles.length}
+          next={this.fetchMoreData}
+          hasMore={this.state.articles.length !== this.state.totalArticles}
+          loader={<Loader/>}
+        >
+          <div className="container my-3">
+            <div className="row">
+              {this.state.articles.map((article) => {
                 return <div className="col-md-4 my-3" key={article.url}>
                   <NewsItem title={article.title ? article.title : ""} imageUrl={article.urlToImage} description={article.description ? article.description : ""} url={article.url} author={article.author} date={article.publishedAt} articleSource={article.source.name} />
                 </div>
               })}
+            </div>
           </div>
-          <div className="container d-flex justify-content-between">
-            <button type="button" disabled={this.state.pageNumber <= 1} onClick={this.gotoPreviousPage} className="btn btn-dark">&#8592; Previous</button>
-            <button type="button" disabled={this.state.pageNumber >= (Math.ceil(this.state.totalArticles / 15))} onClick={this.gotoNextPage} className="btn btn-dark">Next &#8594;</button>
-          </div>
-        </div>
-
-      </div>
+        </InfiniteScroll>
+      </>
     )
   }
 }
