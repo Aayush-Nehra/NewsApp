@@ -3,7 +3,6 @@ import NewsItem from './NewsItem'
 import Loader from './Loader';
 import configData from '../main/resources/config.json'
 import PropTypes from 'prop-types'
-import InfiniteScroll from 'react-infinite-scroll-component';
 
 export class NewsComponent extends Component {
   constructor(props) {
@@ -40,7 +39,7 @@ export class NewsComponent extends Component {
     let parsedNewsArticlesObject = await newsArticlesObject.json();
     return parsedNewsArticlesObject;
   }
-
+  
   getNewsApiRequestUrl(pageNumber) {
     return `${configData.NEWSAPI_URL}?country=in&category=${this.props.category}&apiKey=${configData.NEWSAPI_KEY}&pageSize=${configData.NEWS_APPLICATION_PAGE_SIZE}&page=${pageNumber}`;
   }
